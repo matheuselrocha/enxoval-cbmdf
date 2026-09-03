@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Enxoval CFP CBMDF 2026</title>
+<meta name="description" content="Calculadora e pesquisa de preços do enxoval obrigatório do CFP CBMDF 2026.">
+<meta name="theme-color" content="#161613">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Enxoval CBMDF">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23161613'/%3E%3Cpath d='M50 16 22 28v20c0 17 12 29 28 36 16-7 28-19 28-36V28z' fill='none' stroke='%23c4321e' stroke-width='6' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23161613'/%3E%3Cpath d='M50 16 22 28v20c0 17 12 29 28 36 16-7 28-19 28-36V28z' fill='none' stroke='%23c4321e' stroke-width='7' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Enxoval%20CFP%20CBMDF%202026%22%2C%22short_name%22%3A%22Enxoval%20CBMDF%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23161613%22%2C%22theme_color%22%3A%22%23161613%22%7D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#e9e9e3; --card:#fff; --ink:#181815; --ink2:#68685f; --ink3:#9c9c92;
+  --rule:#dbdbd2; --rule2:#ecece5; --fogo:#c4321e; --fogo-d:#a72916; --feito:#3c6b4c;
+  --topo:#161613; --topo2:#25251f; --sombra:0 1px 0 rgba(0,0,0,.05);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:Barlow,system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;padding-bottom:calc(66px + env(safe-area-inset-bottom));
+}
+.num{font-family:"Barlow Semi Condensed",Barlow,sans-serif;font-variant-numeric:tabular-nums}
+.app{max-width:480px;margin:0 auto;min-height:100vh}
+button{font:inherit}
+a{color:inherit}
+
+/* ---------- topo / orçamento ---------- */
+.topo{
+  position:sticky;top:0;z-index:20;color:#f3f3ee;
+  background:linear-gradient(180deg,var(--topo2),var(--topo));
+  padding:calc(12px + env(safe-area-inset-top)) 16px 12px;
+  box-shadow:0 6px 18px -12px rgba(0,0,0,.5);
+}
+.topo .hd{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.topo .hd .mk{font-family:"Barlow Semi Condensed";font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#c9c9bf}
+.topo .hd .mk b{color:var(--fogo)}
+.topo .hd .tela{margin-left:auto;font-size:11.5px;color:#8f8f85;letter-spacing:.04em;text-transform:uppercase}
+.falta{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.falta b{font-family:"Barlow Semi Condensed";font-size:40px;font-weight:700;line-height:.92;letter-spacing:-.01em}
+.falta span{font-size:13.5px;color:#a6a69c}
+.sub{font-size:13px;color:#a6a69c;margin-top:5px}
+.sub b{color:#e7e7df;font-weight:600}
+.barra{height:5px;background:#39392f;border-radius:3px;margin-top:11px;overflow:hidden}
+.barra i{display:block;height:100%;background:var(--fogo);width:0;border-radius:3px;transition:width .3s ease}
+.barra i.full{background:var(--feito)}
+.fonte{display:flex;align-items:center;gap:6px;font-size:11px;color:#84847a;margin-top:9px;padding-top:8px;border-top:1px solid #333329}
+.fonte .pt{width:6px;height:6px;border-radius:50%;background:#84847a;flex:none}
+.fonte .pt.viva{background:#6fae7d;box-shadow:0 0 0 3px rgba(111,174,125,.18)}
+.fonte a{color:#adad9f;margin-left:auto;text-decoration:none;border-bottom:1px solid #45453a;padding-bottom:1px}
+
+/* ---------- filtros ---------- */
+.filtros{display:flex;gap:6px;padding:12px 16px 2px}
+.chip{
+  flex:1;border:1px solid var(--rule);background:var(--card);color:var(--ink2);
+  padding:8px 6px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;min-height:38px;
+}
+.chip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#f3f3ee}
+.chip:focus-visible{outline:2px solid var(--fogo);outline-offset:2px}
+
+h2.grupo{
+  display:flex;align-items:baseline;gap:8px;
+  font-family:"Barlow Semi Condensed";font-size:12.5px;font-weight:700;letter-spacing:.08em;
+  color:var(--ink2);margin:20px 16px 8px;text-transform:uppercase;
+}
+h2.grupo .sm{font-weight:600;color:var(--fogo);letter-spacing:.02em}
+h2.grupo .rt{margin-left:auto;font-weight:600;color:var(--ink3);letter-spacing:.02em;text-transform:none;font-size:13px}
+h2.grupo .rt b{color:var(--ink);font-weight:700}
+.hint{font-size:12.5px;color:var(--ink2);padding:0 16px;margin:-2px 0 8px;line-height:1.5}
+
+/* ---------- item / calculadora ---------- */
+.lista{background:var(--card);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.item{border-top:1px solid var(--rule2)}
+.item:first-child{border-top:none}
+.linha{display:flex;align-items:flex-start;gap:11px;padding:11px 15px 12px}
+.tick{
+  flex:none;width:24px;height:24px;margin-top:2px;border:1.5px solid #c0c0b6;border-radius:6px;
+  background:transparent;cursor:pointer;display:grid;place-items:center;padding:0;
+}
+.tick svg{width:14px;height:14px;stroke:#fff;stroke-width:2.6;fill:none;opacity:0}
+.tick[aria-checked=true]{background:var(--feito);border-color:var(--feito)}
+.tick[aria-checked=true] svg{opacity:1}
+.tick:focus-visible{outline:2px solid var(--fogo);outline-offset:2px}
+.meio{flex:1;min-width:0}
+.nome{font-weight:600;line-height:1.22;cursor:pointer}
+.controls{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.step{display:inline-flex;align-items:center;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:#fafaf7}
+.step button{width:34px;height:34px;border:none;background:transparent;font-size:19px;line-height:1;color:var(--ink);cursor:pointer;display:grid;place-items:center}
+.step button:active{background:var(--rule2)}
+.step button:disabled{color:var(--ink3);cursor:default}
+.step b{font-family:"Barlow Semi Condensed";font-size:16px;min-width:26px;text-align:center;border-left:1px solid var(--rule);border-right:1px solid var(--rule);align-self:stretch;display:grid;place-items:center}
+.lojaBtn{
+  display:inline-flex;align-items:center;gap:5px;min-height:34px;max-width:100%;
+  border:1px solid var(--rule);border-radius:8px;background:#fafaf7;padding:5px 9px;cursor:pointer;
+  font-size:13px;color:var(--ink);
+}
+.lojaBtn .lojaNome{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px;font-weight:600}
+.lojaBtn svg{width:13px;height:13px;stroke:var(--ink3);stroke-width:2;fill:none;flex:none;transition:transform .2s}
+.item.aberto .lojaBtn svg{transform:rotate(180deg)}
+.lojaBtn:focus-visible,.tick:focus-visible,.step button:focus-visible{outline:2px solid var(--fogo);outline-offset:2px}
+.dir{text-align:right;flex:none;padding-left:2px;min-width:74px}
+.dir .v{font-family:"Barlow Semi Condensed";font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.05}
+.dir .un{font-size:11px;color:var(--ink3);margin-top:1px}
+.item.ok .nome,.item.ok .dir .v{color:var(--ink3);text-decoration:line-through;text-decoration-thickness:1.5px}
+.item.ok .un{color:var(--ink3)}
+.item.zerado{opacity:.62}
+.item.zerado .dir .v{color:var(--ink3)}
+
+/* ---------- expansão: comparação de lojas ---------- */
+.exp{display:none;padding:2px 15px 14px 50px}
+.item.aberto .exp{display:block}
+.exp .lbl{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);font-weight:700;margin:2px 0 6px}
+.lj{
+  display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:9px 10px;margin-bottom:3px;
+  border:1px solid transparent;border-radius:8px;background:#f6f6f1;cursor:pointer;
+}
+.lj[aria-pressed=true]{border-color:var(--ink);background:#fff;box-shadow:var(--sombra)}
+.lj .n{flex:1;font-size:13.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.lj .p{font-family:"Barlow Semi Condensed";font-weight:700;font-size:15.5px}
+.lj .dif{font-size:11px;color:var(--ink3);width:46px;text-align:right;font-variant-numeric:tabular-nums}
+.lj.menor .p{color:var(--feito)}
+.lj.menor .dif{color:var(--feito);font-weight:600}
+.lj .r0{width:18px;height:18px;flex:none;border-radius:50%;border:1.5px solid var(--rule);display:grid;place-items:center}
+.lj[aria-pressed=true] .r0{border-color:var(--ink)}
+.lj[aria-pressed=true] .r0::after{content:"";width:9px;height:9px;border-radius:50%;background:var(--ink)}
+
+/* ---------- painéis (lojas/contatos/online/bizus) ---------- */
+.painel{background:var(--card);margin:0 0 1px;padding:14px 16px;box-shadow:var(--sombra)}
+.rank{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--rule2)}
+.rank:last-child{border-bottom:none}
+.rank .pos{font-family:"Barlow Semi Condensed";font-size:14px;font-weight:700;color:var(--ink3);width:20px;text-align:center}
+.rank .n{flex:1;font-size:14.5px;min-width:0;font-weight:600}
+.rank .n small{display:block;color:var(--ink3);font-size:12px;font-weight:500;margin-top:1px}
+.rank .p{font-family:"Barlow Semi Condensed";font-size:18px;font-weight:700}
+.rank.top{background:linear-gradient(90deg,rgba(60,107,76,.08),transparent);margin:0 -16px;padding:11px 16px}
+.rank.top .pos{color:var(--feito)}
+.rank.top .p{color:var(--feito)}
+.rank .cob{flex:none;font-family:"Barlow Semi Condensed";font-size:11px;font-weight:700;padding:2px 6px;border-radius:5px;background:var(--rule2);color:var(--ink2)}
+.rank .cob.baixa{background:#f4ddd8;color:var(--fogo-d)}
+.aviso{font-size:12.5px;color:var(--ink2);margin:10px 16px 2px;line-height:1.5;
+  border-left:3px solid var(--fogo);padding:8px 0 8px 11px;background:linear-gradient(90deg,rgba(196,50,30,.05),transparent)}
+.aviso b{color:var(--ink)}
+table.pag{width:100%;border-collapse:collapse;font-size:13.5px}
+table.pag td{padding:9px 0;border-bottom:1px solid var(--rule2);vertical-align:top}
+table.pag tr:last-child td{border-bottom:none}
+table.pag td:first-child{font-weight:600;padding-right:10px;white-space:nowrap}
+table.pag td:last-child{text-align:right;color:var(--ink2);padding-left:8px}
+.cupom{display:flex;align-items:center;gap:11px;border:1px dashed var(--fogo);border-radius:9px;padding:11px 13px;margin-top:12px;font-size:13px;color:var(--ink2)}
+.cupom .cd{font-family:"Barlow Semi Condensed";font-size:18px;font-weight:700;letter-spacing:.06em;color:var(--fogo-d);
+  border:1px solid var(--fogo);border-radius:6px;padding:3px 9px;background:#fff;white-space:nowrap}
+
+/* contatos */
+.ct{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--rule2);align-items:flex-start}
+.ct:last-child{border-bottom:none}
+.ct .info{flex:1;min-width:0}
+.ct .n{font-weight:600;font-size:14.5px;line-height:1.25}
+.ct .i{font-size:12.5px;color:var(--ink3);margin-top:2px}
+.ct .acts{display:flex;gap:6px;flex:none}
+.ico{width:38px;height:38px;flex:none;border-radius:9px;display:grid;place-items:center;text-decoration:none;border:1px solid var(--rule)}
+.ico svg{width:19px;height:19px}
+.ico.zap{background:#25391f;border-color:#25391f}
+.ico.zap svg{fill:#eafae6}
+.ico.ig{background:#fff}
+.ico.ig svg{fill:none;stroke:var(--ink);stroke-width:1.8}
+
+/* online + bizus */
+.card{background:var(--card);margin:0 0 1px;padding:13px 16px;box-shadow:var(--sombra)}
+.card .tl{font-weight:700;font-size:15px}
+.card .st{font-size:12.5px;color:var(--ink2);margin:3px 0 10px;line-height:1.4}
+.abrir{display:flex;align-items:center;justify-content:center;gap:7px;padding:11px;background:var(--fogo);color:#fff;
+  text-align:center;border-radius:9px;text-decoration:none;font-weight:700;font-size:14px}
+.abrir svg{width:15px;height:15px;stroke:#fff;stroke-width:2;fill:none}
+.abrir:active{background:var(--fogo-d)}
+.outras{margin-top:8px;font-size:13px}
+.outras summary{cursor:pointer;padding:5px 0;color:var(--ink2);font-weight:600;list-style:none}
+.outras summary::-webkit-details-marker{display:none}
+.outras summary::before{content:"▾ ";color:var(--ink3)}
+.outras[open] summary::before{content:"▴ "}
+.outras a{display:block;padding:9px 0;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule2);font-size:13.5px}
+.outras a:last-child{border-bottom:none}
+.biz a{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--rule2);text-decoration:none;color:var(--ink);font-size:14px;font-weight:500}
+.biz a:last-child{border-bottom:none}
+.biz a .ar{margin-left:auto;color:var(--ink3);flex:none}
+.biz a .ar svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none;display:block}
+.biz .tag{flex:none;width:30px;height:30px;border-radius:8px;background:var(--rule2);display:grid;place-items:center;font-size:15px}
+
+/* ---------- rodapé ---------- */
+.rodape{padding:22px 16px 12px;font-size:12px;color:var(--ink3);line-height:1.55}
+.rodape a{color:var(--ink2)}
+.zerar{margin-top:12px;background:none;border:1px solid var(--rule);border-radius:8px;padding:9px 14px;font-size:12.5px;color:var(--ink2);cursor:pointer;min-height:40px}
+.zerar:active{background:var(--card)}
+
+/* ---------- abas ---------- */
+.abas{
+  position:fixed;bottom:0;left:0;right:0;z-index:30;display:flex;justify-content:center;
+  background:rgba(251,251,247,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-top:1px solid var(--rule);padding-bottom:env(safe-area-inset-bottom);
+}
+.abas .inner{display:flex;width:100%;max-width:480px}
+.abas button{
+  flex:1;border:none;background:none;font-size:10.5px;font-weight:600;
+  color:var(--ink3);padding:8px 0 7px;cursor:pointer;display:grid;gap:3px;justify-items:center;min-height:56px;
+}
+.abas button svg{width:22px;height:22px;stroke:currentColor;stroke-width:1.7;fill:none}
+.abas button[aria-selected=true]{color:var(--fogo)}
+.abas button[aria-selected=true] svg{stroke-width:2}
+.abas button:focus-visible{outline:2px solid var(--fogo);outline-offset:-3px}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topo">
+    <div class="hd">
+      <span class="mk">Enxoval <b>·</b> CFP CBMDF 2026</span>
+      <span class="tela" id="tTela">Calculadora</span>
+    </div>
+    <div class="falta"><b class="num" id="tFalta">—</b><span id="tLabel">ainda a comprar</span></div>
+    <div class="sub" id="tSub">Carregando preços…</div>
+    <div class="barra"><i id="tBarra"></i></div>
+    <div class="fonte"><span class="pt" id="fPonto"></span><span id="fTexto">Lendo a planilha…</span>
+      <a href="https://docs.google.com/spreadsheets/d/1QI-vGc--zXDDX3Tvq_F1i3bZGOFiY5o0C88MHbNrDGc/edit" target="_blank" rel="noopener">planilha</a>
+    </div>
+  </header>
+
+  <main id="tela"></main>
+
+  <div class="rodape">
+    <p>Pesquisa feita por aprovados do CFP CBMDF 2026. Preço muda sem aviso — confirme na loja antes de comprar. Célula com preço zero na planilha = a loja não vende aquele item.</p>
+    <button class="zerar" id="btZerar">Zerar minhas escolhas</button>
+  </div>
+</div>
+
+<nav class="abas" role="tablist" aria-label="Seções"><div class="inner">
+  <button role="tab" data-t="calc" aria-selected="true">
+    <svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>Calculadora</button>
+  <button role="tab" data-t="lojas" aria-selected="false">
+    <svg viewBox="0 0 24 24"><path d="M4 9h16l-1 11H5L4 9zM8 9V6a4 4 0 018 0v3"/></svg>Lojas</button>
+  <button role="tab" data-t="online" aria-selected="false">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.5 2.6 2.5 12.4 0 16M12 4c-2.5 2.6-2.5 12.4 0 16"/></svg>Online</button>
+  <button role="tab" data-t="bizus" aria-selected="false">
+    <svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 013.5 10.9c-.6.5-1 1-1 1.6H9.5c0-.6-.4-1.1-1-1.6A6 6 0 0112 3z"/></svg>Bizus</button>
+</div></nav>
+
+<script>
+/* =========================================================================
+   SNAPSHOT — cópia embutida da planilha (funciona offline / se o gviz falhar)
+   Para regerar: ver README (export xlsx da planilha -> extrair preços/links).
+   ========================================================================= */
+const SNAPSHOT = {"blocos":{"enxoval":{"lojas":["Demir","Cezar","Brito","Forte","VL","Military Artigos Militares (Quirino)","Empório Militar","Mercado Livre"],"itens":[{"cat":"Agasalho","nome":"Conjunto Agasalho (Blusa + Calça)","qtd":1,"p":{"Demir":210,"Cezar":240,"Brito":280,"Military Artigos Militares (Quirino)":205},"g":"A"},{"cat":"Calças Pretas / Táticas","nome":"Calça Preta Tática","qtd":3,"p":{"Demir":200,"Cezar":240,"Brito":240,"Forte":200,"VL":230,"Military Artigos Militares (Quirino)":180,"Mercado Livre":125},"g":"A"},{"cat":"Camiseta CFP","nome":"Camiseta CFP Curta","qtd":4,"p":{"Demir":45,"Cezar":45,"VL":65,"Military Artigos Militares (Quirino)":45},"g":"A"},{"cat":"Camiseta CFP","nome":"Camiseta CFP Longa","qtd":2,"p":{"Demir":50,"Cezar":48,"VL":75,"Military Artigos Militares (Quirino)":50},"g":"A"},{"cat":"Cinto","nome":"Fita de Cinto Vermelha","qtd":2,"p":{"Demir":10,"Cezar":10,"Brito":15,"VL":15,"Military Artigos Militares (Quirino)":8,"Empório Militar":15},"g":"A"},{"cat":"Cinto","nome":"Fivela CBMDF","qtd":2,"p":{"Demir":40,"Cezar":40,"Brito":40,"VL":40,"Military Artigos Militares (Quirino)":40},"g":"A"},{"cat":"Conjunto de Passeio","nome":"Bibico","qtd":1,"p":{"Demir":35,"Cezar":50,"Brito":60,"VL":60,"Military Artigos Militares (Quirino)":32,"Empório Militar":65},"g":"A"},{"cat":"Conjunto de Passeio","nome":"Calça Passeio/Folga","qtd":1,"p":{"Demir":140,"Cezar":220,"Brito":240,"VL":230,"Military Artigos Militares (Quirino)":135,"Empório Militar":237},"g":"A"},{"cat":"Conjunto de Passeio","nome":"Canícula Passeio","qtd":1,"p":{"Demir":110,"Cezar":190,"Brito":195,"VL":195,"Military Artigos Militares (Quirino)":110,"Empório Militar":240},"g":"A"},{"cat":"Conjunto de Passeio","nome":"Saia Passeio","qtd":1,"p":{"Demir":110,"Cezar":220,"Brito":210,"VL":190,"Military Artigos Militares (Quirino)":120,"Empório Militar":290},"g":"F"},{"cat":"Conjunto de Passeio","nome":"Tarjeta Vermelha","qtd":1,"p":{"Demir":25,"Cezar":40,"Brito":40,"VL":30,"Military Artigos Militares (Quirino)":25,"Empório Militar":37},"g":"A"},{"cat":"Educação Física","nome":"Bermuda Preta de Malha","qtd":3,"p":{"Demir":40,"Brito":65,"VL":65,"Military Artigos Militares (Quirino)":40,"Empório Militar":95},"g":"A"},{"cat":"Educação Física","nome":"Gorro Ed. Física Vermelho","qtd":2,"p":{"Demir":40,"Cezar":45,"Brito":55,"Forte":35,"VL":55,"Military Artigos Militares (Quirino)":40,"Empório Militar":69},"g":"A"},{"cat":"Educação Física","nome":"Short Vermelho","qtd":4,"p":{"Demir":40,"Cezar":40,"Brito":65,"VL":55,"Military Artigos Militares (Quirino)":40,"Empório Militar":52},"g":"A"},{"cat":"Operacional","nome":"Camiseta Vermelha Bordada (OP)","qtd":6,"p":{"Demir":60,"Cezar":55,"Brito":70,"Forte":45,"VL":65,"Military Artigos Militares (Quirino)":60,"Empório Militar":85},"g":"A"},{"cat":"Prontidão 3ª / Laranja","nome":"Conjunto Prontidão (Gandola + Calça)","qtd":4,"p":{"Demir":535,"Cezar":520,"Brito":615,"VL":610,"Military Artigos Militares (Quirino)":530,"Empório Militar":600},"g":"A"},{"cat":"Prontidão 3ª / Laranja","nome":"Gandoleta (c/ nome e OBM)","qtd":1,"p":{"Demir":260,"Cezar":280,"Military Artigos Militares (Quirino)":255},"g":"A"},{"cat":"Prontidão 3ª / Laranja","nome":"Gorro SD / Gorro Laranja (Praça)","qtd":2,"p":{"Demir":55,"Cezar":55,"Brito":65,"VL":60,"Military Artigos Militares (Quirino)":50,"Empório Militar":69},"g":"A"},{"cat":"Túnica / Gala","nome":"Calça Túnica","qtd":1,"p":{"Demir":140,"Cezar":150,"Brito":240,"VL":230,"Military Artigos Militares (Quirino)":140,"Empório Militar":300},"g":"A"},{"cat":"Túnica / Gala","nome":"Camisa Social Branca","qtd":1,"p":{"Demir":115,"Cezar":150,"Brito":195,"VL":195,"Military Artigos Militares (Quirino)":110,"Empório Militar":300},"g":"A"},{"cat":"Túnica / Gala","nome":"Crachá SD","qtd":1,"p":{"Demir":35,"Cezar":35,"Military Artigos Militares (Quirino)":30,"Empório Militar":90},"g":"A"},{"cat":"Túnica / Gala","nome":"Distintivo Comb. ou Cond. (Machadinha)","qtd":2,"p":{"Demir":12,"Cezar":12,"Brito":30,"VL":25,"Military Artigos Militares (Quirino)":10},"g":"A"},{"cat":"Túnica / Gala","nome":"Gravata","qtd":1,"p":{"Demir":40,"Cezar":40,"Brito":40,"VL":35,"Military Artigos Militares (Quirino)":40,"Empório Militar":48},"g":"A"},{"cat":"Túnica / Gala","nome":"Quepe/Casquete","qtd":1,"p":{"Demir":150,"Cezar":180,"Brito":290,"VL":290,"Military Artigos Militares (Quirino)":150,"Empório Militar":200},"g":"A"},{"cat":"Túnica / Gala","nome":"Saia Túnica","qtd":1,"p":{"Demir":110,"Cezar":220,"Brito":210,"VL":190,"Military Artigos Militares (Quirino)":120,"Empório Militar":290},"g":"F"},{"cat":"Túnica / Gala","nome":"Tarjeta Dourada","qtd":1,"p":{"Demir":35,"Cezar":50,"Brito":40,"VL":40,"Military Artigos Militares (Quirino)":32,"Empório Militar":37},"g":"A"},{"cat":"Túnica / Gala","nome":"Túnica Cinza (c/ divisa)","qtd":1,"p":{"Demir":600,"Cezar":750,"Brito":895,"VL":900,"Military Artigos Militares (Quirino)":600,"Empório Militar":800},"g":"A"}]},"coturno":{"lojas":["Reserva Militar","Lacustre Tatical","Military Artigos Militares (Quirino)","Brito","Atalaia (Loja Online)","Atalaia (Loja Online) + Cupom de desconto","Bravo Operacional"],"itens":[{"cat":"Coturno","nome":"Atalaia - Extraleve sem Ziper","qtd":1,"p":{"Reserva Militar":289,"Lacustre Tatical":236,"Atalaia (Loja Online)":290,"Atalaia (Loja Online) + Cupom de desconto":270},"g":"A"},{"cat":"Coturno","nome":"Atalaia - Série Ouro","qtd":1,"p":{"Reserva Militar":314,"Atalaia (Loja Online)":310,"Atalaia (Loja Online) + Cupom de desconto":288},"g":"A"},{"cat":"Coturno","nome":"Atalaia - Patriota","qtd":1,"p":{"Reserva Militar":299,"Atalaia (Loja Online)":299,"Atalaia (Loja Online) + Cupom de desconto":278},"g":"A"},{"cat":"Coturno","nome":"Calfesa","qtd":0,"p":{"Reserva Militar":249},"g":"A"},{"cat":"Coturno","nome":"KALLUCCI - Extraleve","qtd":0,"p":{"Brito":300},"g":"A"},{"cat":"Coturno","nome":"Force Militar - Extraleve","qtd":0,"p":{"Military Artigos Militares (Quirino)":260},"g":"A"},{"cat":"Coturno","nome":"Price - Troller sem Zíper","qtd":0,"p":{"Bravo Operacional":200},"g":"A"}]},"equip":{"lojas":["Brito","Forte","Mercado Livre"],"itens":[{"cat":"Equipamentos / Acessórios","nome":"Apito","qtd":1,"p":{"Forte":10},"g":"A"},{"cat":"Equipamentos / Acessórios","nome":"Cantil com Porta Cantil","qtd":1,"p":{"Brito":70,"Forte":90,"Mercado Livre":62},"g":"A"},{"cat":"Equipamentos / Acessórios","nome":"Fita Tubular","qtd":1,"p":{"Forte":6},"g":"A"},{"cat":"Equipamentos / Acessórios","nome":"Freio Oito","qtd":1,"p":{"Forte":95},"g":"A"},{"cat":"Equipamentos / Acessórios","nome":"Luva Poliflex","qtd":1,"p":{"Forte":19},"g":"A"},{"cat":"Equipamentos / Acessórios","nome":"Máscara PFF1","qtd":1,"p":{"Forte":35},"g":"A"},{"cat":"Equipamentos / Acessórios","nome":"Mosquetão","qtd":1,"p":{"Forte":90},"g":"A"},{"cat":"Equipamentos / Acessórios","nome":"Óculos de Proteção","qtd":1,"p":{"Forte":8},"g":"A"},{"cat":"Equipamentos / Acessórios","nome":"Protetor Auricular","qtd":1,"p":{"Forte":8},"g":"A"},{"cat":"Equipamentos / Acessórios","nome":"Luva de Raspa","qtd":1,"p":{"Forte":25},"g":"A"}]}},"links":[{"nome":"Meias - Coturno","op":[{"t":"Meião Preto Poliamida Futebol Militar Uniforme Kit 5 Pares","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BGiAxpxm3VM2kUcS2K4ccDtYkwbnC70Pm9bz5YF0ghxiJCHwsUB2OriTvSw3vEp8LjG0PTS2ytKktsPoTGMFMf8NlPuB5oChMVzPNrGvsBJExzugyoin9%2FT5%2BV62CbpJWxStS2U0zcuvWagUwUkVpBAut0SN07RZj4Wa4hWCC1T4gJwYchBzlPWhryv9dM64AfLHrA%3D%3D"},{"t":"Kit 3 Meias Masculina 3/4 De Compressão Moderada 5-10 Mmhg","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BJF2YfwUJibXbgpe0bslLpUKnuRuU28%2BZhZznng7a34Z6iR%2BwlqRFn5Fi2IQuW6lvYcpn3bUm8yimKfrYmfgClTVcXzabalqaJwt6MHqDCpTnZ8l5Tvo9xy1QN728M8TeIHQZmIMmJ2g13NFo5cRJZNi63tt%2BNsY4UqbnnBKv0rDV4OhCT0rRpzSe06xxgyJEBKxKnRTrD9CZq9sNMSKf4iN0CFxn2Oob%2FNDekGCGGyB9I8B"}],"g":"A"},{"nome":"Meias - TFM","op":[{"t":"Kit 3 Meias Poliamida Esportiva Corrida Bike Runing Academia","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BB2rTdecYUe84eEvI%2F5osDVMlgMjSMFwWNABf238vfC1nsWlo4Ds%2FVw9YRJpNTKGuI1rn64hh7clD8faYqgJoVRq7p1%2B7T1v%2BT8bTVALjumzpzyCL4FEnzDen0GMgh0zWGWJIN1w4VdCZrkFO3NVvmPhqD1%2FJhDKVHAKPdkxKRAm64%2B8a3ir73rHeNIv2VQQT6S2hrnLvHCe27AhqeUzvh2fpt%2BcdD%2B2VN66a886%2FWIPUTJc"},{"t":"Kit Com 3 Pares Meias Poliamida Corrida Crossfit Compressão","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BJNIeguTtsVkWfIKDAoll7FJjjvenVIz8NMsSGyJ83yIYJaJP7D9fcKpdKowFInLLJZSsgh0N%2BgR4EurrfocrY1RVyvmcbCMd4vHGcR1rz40VW3eVz%2FrFi1Jr5nOZ20%2BxkBDzI%2FtzJDKo4q5k0YHVo1a0uHWxtg5Zi3htaoiVtRUoGv5%2B2VE7QFAlRzIO%2BGLwZmvZA%3D%3D"}],"g":"A"},{"nome":"Bermuda Térmica","op":[{"t":"Bermuda Térmica Anti Assadura Esportiva Sem Costura Keeper","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BB%2FTckfCjqQQJxNGoYY9EfUX552cG99Y0F7dC%2BrNRLtlk%2Ff5rt7GSBOFjzR%2B0ZeparzL%2FIcgINGrC0xSCsb5y6mHOtBS4dFYCB4wUZiJvXs820PmuL77fQmC9m56rEXMu37V0EiSYQqHPxIOKkFV4qa8WELdTaYDBuOzhw1QrLtGvKD301XdIzbPX7GqGhR0eguC6g%3D%3D"},{"t":"Shorts Feminino Para Corrida Com Bolsos","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BAn2sxABitwwUjimgZ2AU0kkxNGbCuBZGXa9NxkTJsAnq%2FyNAXuhWOKsdxdrEBiB4JzMjoWfbbdUlMV4oRamnH5Q7tFp7fclZlEjhG1NntgffGXip%2BQH5os6QG4%2B47a1Kv1kjI5uMjQiKMK5mrAy0wa6p%2FB8PVYnGAn102UpjAckSS6m7%2BrJInsms4jEjlRNBs96hw%3D%3D"},{"t":"Bermuda De Compressão Masculina Com Bolso Corrida","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BDoLrXO73391NFixWVlaHdexUTCxU1eK3CeVrGyhWyFfJbiqrNtjQrzQaxk282nvS0FRbw5PrC%2BFh2M032eZEMd%2FGIx8Tl92Gdt%2ByFVPPLjKi%2FRs1h4rkbdD3q4538TbIhzHiC5mtb25uWKrvZSkX1FVLJIp9iNKyeNquY1ZzeWIxNf6P91fOz8SlwTEQ%2FFCk1h27Q%3D%3D"},{"t":"Bermuda Térmica Keeper Anti Assaduras Resistente sem Costura Masculina Sport Alta Performance Lisa","u":"https://s.shopee.com.br/2LXaOCUfb4"},{"t":"Kit 2 Bermudas Térmica Feminina para Mulher Academia Treino Caminhada Bike","u":"https://s.shopee.com.br/1gHtb5hqyK"}],"g":"A"},{"nome":"Kit Limpeza Coturno","op":[{"t":"Kit 1 Graxa Nugget Preto 2 Escovas 1 Flanela Polidor Sapato","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BAGdriBRn3e%2FVo6KUuEqaymPZSyRo8jeoxIf1ud%2BAwwqCO6Dk%2BggdDVRVrSLZj%2BlFMYsjZaJ1mNbNGaeQCFmLQ%2B64W0Ogl26PACGrQ0eN%2FWO0EZ9mfLDws4DthoehbBuwtNKjXwaW6otzz0YEB8znCRh8zGGs8D28TOtlfXyZQ73hqt8ekAA0qUQ9ybnJTO%2FG%2Brt5zuozCZaxLDkvrlxilnIPA5nf2mF9oyL2iGeQlRZ5w%3D%3D"},{"t":"Kit 2 Nugget Graxa Para Sapato | 36 Gramas | Preto 2 Unidades","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BCmnltSu2i4NFwXPOsvOVpFaJgbMbTiPGQO9XD04iRiiiyxywznOHnzCrdtu1TJUJBvttA0ylTrrDyGLed1oLbQy8qrmv8qgkt7HM8NYXjXseFEY1tDIldcbAAwbv6mmL3rS8%2FQaghAptXJ67Q1uil884Y1TsOLyj2SwcpbXGq%2BmZrUtOqCShdtYu913xHIHIihJ278UmS3AypesG4EFgDEUD9VvqOIuMD%2BboVGt"},{"t":"Pote Manutenção de Coturno | Kit Atack One - Atack","u":"https://s.shopee.com.br/1Lf3CbFQLA"}],"g":"A"},{"nome":"Pomada Antiassadura","op":[{"t":"Pomada Minancora 30g Kit 3 Un 30g Cada","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BO6j8Ea7hNcSlMW8bC0koexyYNwIhcQk8sUS501gCshFrRCbNIs2v8s%2F7eL0xFmJwqextKcW1yCc86X5dJudewQpZLtdJMYWn7D7TGynwXN7raX1ZNOSVOt6gIUa1bFEEMACmmC4nfRazwibXwsHApenXcboIIaxNiD9n%2FF3GAZ4TO0H8oUxZtd8DTY78BiOnIne02dNm%2FJzsGPIqpjjtUhhKQ5LEG0taRll72%2BdtmLmOJMB"},{"t":"Vaselys - Vaselina Sólida Aromatizada - Lysanda","u":"https://s.shopee.com.br/2Vr0aVU2G7"}],"g":"A"},{"nome":"Top Feminino","op":[{"t":"Top Lupo Loba Fitness Confortável Ótima Sustentação Academia","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BE9XSj3ZTfk1Eu3SqfAuRFzZPDvfhZZDHH7aIXFSG%2FUFJCaQmz3r0IKY2viiMyUSMhWul7mVncZbJrSvKx9%2BRDDB1%2FY1nR1wtED2J5gHTc7znyk42iMnXX3oB4Nfy%2FrhB0UKX0uAzTwW%2BOWFi3iHsg7IE%2FfEZI44KX3SDBYhpkLn6T%2FDZZ8ecVpJ6YftN3Ev4rErKg%3D%3D"},{"t":"Top Nadador Com Bojo Removível Selene Fitness Sustentação","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BPYId7dXgXI1YzZTNHcHiJ7IiNnGVUenAqGVa6%2BQO9t5FwJ1U0N%2BFygRGcWtIeqdQw9S%2BtJv8i6SxzaQYP2fo%2BnbVymJRcoZ4T2FVyJwOyr9HruJhE4l1h%2F0iszN6dnPPiIlO5EmtfkwPKDCZIi0RFQYQTZP50cv%2B8cXRiHcwuuPtAqA%2Bvbe4QFkkPzaaDK8YijxjQ%3D%3D"}],"g":"F"},{"nome":"Maiô/Macaquinho","op":[{"t":"Maiô Long Fila Tri Feminino Preto","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BD5c5ODbl2O48Jdhy%2FikcjxFPnnozu2YmzKN04U4Md%2FYq4M%2BpfcDhtI1tplzCdAcWIfUtwgw3uB9WuGHiD3I83N%2BS4x4rn0CydbRhA9Zpt%2B%2FTlI%2BVRTXJeyUYsAqQ7E5p4h1mnRMfX17RInXbLGxX5rqUTnsPbw2UhtorVaiJt9b%2Bw6m5ABmkOxrdhneqCjPgl3p%2FQ%3D%3D"},{"t":"Macaquinho de Hidroginástica Fila Twice - Adulto","u":"https://www.centauro.com.br/macaquinho-de-hidroginastica-fila-twice-adulto-745542.html"}],"g":"F"},{"nome":"Rede para cabelo feminino","op":[{"t":"HI-Max 20/40pcs Rede de Cabelo Invisível Ferramenta de Coque Elástico para Mulheres","u":"https://s.shopee.com.br/2gAQmoTOvA"}],"g":"F"},{"nome":"Necessaire","op":[{"t":"Necessaire Organizadora Malas Viagem Maquiagem Higiene Preto","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BJtXehDoMJ66CEDpPkUFByjxXn0Q48sMuHWsrD5FD%2F1FrdhWbmQpe2LHoJKIHPRiftKs9PRiUqFtgJ0CnzvyLyGe%2Bf7uh9Ilx04pj3iSv70ZyWtSacnBPW8GZRnfcQ375efgABlONZkG7BBbdP1sO0lJBtPvaCvTwlh1rQKG%2Fs6xYIB0b6JpLfUFziqUD2yZZPCw4gVcsXkPZeP7BqHVu8h2XMMuTjGfI0IRCg%3D%3D"}],"g":"A"},{"nome":"Palmilhas Ortopédicas","op":[{"t":"Palmilha Em Gel Vellani Anatomica Macia Coturno Tênis","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BACWySosg%2BJ1qfTM4gcEIDPIotvblfM3aPDPLD%2BOUCaxpNvHYKmLRYMvaTQqPX2Chmo6t6KnjltbwndN5kC5hZELzK3d65UDoADNz%2B%2BrkdwNdDAKlpSZKjypa%2B52kTCbhS2Ez%2BCJul2qML65e8kCFdJnjGANOvKbCi9UXRA%2BDZO4l8HW%2B1G9xkCSGmEWvpxO3yCrcFdS0i5LONRJ35rr4AfmBa3OpeM473isXYdP%2B6qo6F4P"},{"t":"Kit 2 Palmilhas Ortopédica Em Gel Anti Impacto Confortável","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BCyYSA3cjg4BJT465JBnXNzF1IIl1ToRobxToeL9W0EBND%2Fn4dEALrg6Y9hyvC3Cb0kX3wkhWfBZvwAFafcZiSEB9T630LW9OzCcogM%2BLxV9TUnunZXGXhWcWju%2FQ%2Fi8XH3GIgZrBZo77EpkXJxkKBELFE5EW5g8TLvgeL45tBkT6VgXg6onjd%2FRFYcN07cONmWVqw%3D%3D"},{"t":"Kit 4 Pares Palmilha De Gel Ortopédica Anatomica Confortável","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BKXb%2FIup4POhkBuDYFgSfhEvXIpHYUQG15Isn%2Bz4IoFd3AmSa3jfpUpvMj9bj%2Bmh7UKt55EnTPB%2B%2FNZs5amnjr26bFtSe%2B4jlTWHj5j2u9P0Mca1QE6LX%2FdsssweLAfvgzpxun3V9uwWr3EUsl7IUVt%2FhDZlxF03CsWesy6W2eHO9n4W6EKOIk1j7yTCJhJZ4H7%2BUQ%3D%3D"}],"g":"A"},{"nome":"Calça Tática Preta - RipStop (Padrão Enxoval)","op":[{"t":"Calça Tática Rip Stop Preta Tamanhos Grandes Até 62","u":"https://www.mercadolivre.com.br/social/roma6456341?matt_word=roma6456341&matt_tool=75117329&forceInApp=true&ref=BHRMgoobvPBmYaTL2oq4jifK2EKtTfPu549EL6SvnposGH6WqzHSIktL2LM9s5i%2F7pMnSxfLHnutwzQgXaHMdVlyomLwYo6M1NggSQmLhDgeSSYcfWqCxGmajGiXT15GB9nIuhcaBsupqJ1cSJKf4vTnphn8HjAiEJl4%2F1YwjS4pyjL1zrBG7XT0dcm14NotSq8oYw%3D%3D"}],"g":"A"}],"pagamento":[["Demir","4x sem juros (7x com túnica)","5% à vista"],["Cezar","7x no pacote completo","7% à vista"],["Brito","3x","5% à vista"],["Forte","Negocia no ato","Negocia no ato"],["VL","4x","5% à vista"],["Military (Quirino)","4x sem juros (7x com túnica)","6% à vista"]],"contatos":[["Demir Fardas Militares","(61) 98439-4266","@demirfardas","https://www.instagram.com/demirfardas"],["Cezar Uniformes","(61) 98259-6308","@cezaruniformes2008","https://www.instagram.com/cezaruniformes2008"],["Brito Uniformes Militares","(61) 3042-0508","@britouniformesmilitares","https://www.instagram.com/britouniformesmilitares"],["Forte Militar","(61) 98178-7182","@fortemilitar","https://www.instagram.com/fortemilitar_"],["VL Artigos Militares","(61) 3351-5691","@vl_artigos_militares","https://www.instagram.com/vl_artigos_militares"],["Military Artigos Militares (Quirino)","(61) 99974-3145","",""],["Reserva Militar","(61) 98287-3934","@reservamilitar","https://www.instagram.com/reservamilitar_"],["Empório Militar","(61) 99321-7604","@emporio_militar_","https://www.instagram.com/emporio_militar_"],["Bravo Operacional - Calçados Táticos","(11) 91806-7534","",""]],"cupom":{"loja":"Atalaia (Loja Online)","pct":"7%","codigo":"VIPCBMDF"},"lojasPorBloco":{"enxoval":["Demir","Cezar","Brito","Forte","VL","Military Artigos Militares (Quirino)","Empório Militar","Mercado Livre"],"coturno":["Reserva Militar","Lacustre Tatical","Military Artigos Militares (Quirino)","Brito","Atalaia (Loja Online)","Atalaia (Loja Online) + Cupom de desconto","Bravo Operacional"],"equip":["Brito","Forte","Mercado Livre"]},"bizus":[["Arquivos base",[["Link do Drive (arquivos)","https://drive.google.com/drive/folders/1ay6q8zsUqLYOFNvH4vdzqh3MJSWNRP5y?usp=drive_link"]]],["Ordem unida",[["Comandos de Ordem Unida","https://www.youtube.com/watch?v=dGVklqlPcsk"],["Prova de Ordem Unida","https://www.youtube.com/shorts/bCxsJ11Buok"],["IPBM · Ordem Unida em Instruções 1/3","https://www.youtube.com/watch?v=DNinw99-48o"],["IPBM · Ordem Unida em Instruções 2/3","https://www.youtube.com/watch?v=hlSHViNxJsg"],["IPBM · Ordem Unida em Instruções 3/3","https://www.youtube.com/watch?v=7vYcgJS-sAQ"]]],["Hinos e canções",[["Hinos e Canções CBMDF (oficial)","https://www.cbm.df.gov.br/hinos-e-cancoes/"],["Spotify · Hinos CBMDF","https://open.spotify.com/playlist/5a3PR39IluTIBGas7DYJLN"],["Spotify · Canções TFM","https://open.spotify.com/playlist/2hNoqokGXFDIzCq75HBmUd"]]],["Nós e amarrações",[["Playlist CBMDF (YouTube)","https://www.youtube.com/playlist?list=PLF5Gc4V6QWl-JhSNzrKxeM8prWtu3Loga"],["App Knots 3D · iPhone","https://apps.apple.com/br/app/knots-3d/id453571750"],["App Knots 3D · Android","https://play.google.com/store/apps/details?id=com.nynix.knots3d&hl=pt"],["Knots 3D · site","https://knots3d.com/pt/n%C3%B3s"]]],["Cuidado com os pés",[["Passo a passo (YouTube)","https://www.youtube.com/watch?v=4QPaWTB47qk"],["Dicas gerais (Instagram)","https://www.instagram.com/p/Da6CFiqkWko/"]]],["Manutenção do coturno",[["Kit manutenção · Shopee","https://shopee.com.br/Pote-Manuten%C3%A7%C3%A3o-de-Coturno-Kit-Atack-One-Atack-i.1113969103.23197310548"],["Cera líquida preta · Shopee","https://shopee.com.br/product/1658245933/58250631996"],["Como engraxar · Instrução 1","https://www.youtube.com/shorts/rpjbpLdufxg"],["Como engraxar · Instrução 2","https://www.youtube.com/shorts/zhjSbNehbjk"]]],["Kit costura",[["Kit costura · Shopee","https://shopee.com.br/product/1257468988/22393212209"]]],["Outros",[["33 Conselhos de um soldado","https://www.youtube.com/watch?v=2DiBI7M-0sA"]]]]};
+
+/* =========================================================================
+   CONFIGURAÇÃO — a única parte que você mexe se a planilha mudar de layout
+   ========================================================================= */
+const CFG = {
+  planilhaId: "1QI-vGc--zXDDX3Tvq_F1i3bZGOFiY5o0C88MHbNrDGc",
+  aba: "Enxoval Unificado",
+  // Cada bloco: linhas de itens (1-indexadas, como no CSV do gviz) e colunas de loja (0-indexadas: A=0,B=1,...).
+  // Os NOMES das lojas vêm de SNAPSHOT.lojasPorBloco (na planilha só o bloco Enxoval tem cabeçalho nomeando as lojas).
+  // Confira abrindo …/gviz/tq?tqx=out:csv&sheet=Enxoval%20Unificado — a 1ª linha do CSV é o cabeçalho.
+  blocos: {
+    enxoval: { ini: 2,  fim: 28, c0: 3, c1: 10, titulo: "Enxoval" },
+    coturno: { ini: 32, fim: 38, c0: 3, c1: 9,  titulo: "Coturno" },
+    equip:   { ini: 41, fim: 50, c0: 3, c1: 5,  titulo: "Equipamentos / Acessórios" }
+  },
+  // Itens femininos (mostrados só no filtro Feminino / Todos).
+  femininos: ["Saia Passeio", "Saia Túnica"]
+};
+
+/* =========================================================================
+   Estado do usuário — sobrevive a fechar o app (com fallback em memória)
+   ========================================================================= */
+const guarda = (() => {
+  let mem = {};
+  const ok = (() => { try { localStorage.setItem("_t","1"); localStorage.removeItem("_t"); return true; } catch { return false; } })();
+  return {
+    ler(k, pad){ try { return ok ? (JSON.parse(localStorage.getItem(k)) ?? pad) : (mem[k] ?? pad); } catch { return pad; } },
+    gravar(k, v){ try { if(ok) localStorage.setItem(k, JSON.stringify(v)); else mem[k] = v; } catch {} }
+  };
+})();
+const CHAVE = "cfp_enxoval_v2";
+let E = guarda.ler(CHAVE, { qtd:{}, loja:{}, ok:{}, genero:"A", aba:"calc" });
+if(E.aba==="contatos") E.aba="lojas";   // a aba Contatos virou parte de Lojas
+const salvar = () => guarda.gravar(CHAVE, E);
+
+let DADOS = null, AO_VIVO = false;
+
+/* =========================================================================
+   Leitura da planilha (gviz — público, sem chave, sem backend)
+   ========================================================================= */
+function csv(txt){
+  const linhas=[]; let l=[], c="", asp=false;
+  for(let i=0;i<txt.length;i++){
+    const ch=txt[i];
+    if(asp){ if(ch==='"'){ if(txt[i+1]==='"'){c+='"';i++;} else asp=false; } else c+=ch; }
+    else if(ch==='"') asp=true;
+    else if(ch===","){ l.push(c); c=""; }
+    else if(ch==="\n"){ l.push(c); linhas.push(l); l=[]; c=""; }
+    else if(ch!=="\r") c+=ch;
+  }
+  if(c.length||l.length){ l.push(c); linhas.push(l); }
+  return linhas;
+}
+const numBR = s => { const n = parseFloat(String(s).replace(/[^\d,.-]/g,"").replace(/\.(?=\d{3}(\D|$))/g,"").replace(",",".")); return isNaN(n)?0:n; };
+
+function moldar(linhas){
+  const fem = new Set(CFG.femininos);
+  const saida = {};
+  for(const [chave,b] of Object.entries(CFG.blocos)){
+    const lojas = SNAPSHOT.lojasPorBloco[chave];              // nomes fixos por posição de coluna
+    const itens=[];
+    for(let r=b.ini-1;r<=b.fim-1;r++){
+      const ln = linhas[r]; if(!ln) continue;
+      const nome = String(ln[1]||"").trim(); if(!nome) continue;
+      const p={};
+      for(let c=b.c0;c<=b.c1;c++){ const v=numBR(ln[c]); if(v>0) p[lojas[c-b.c0]] = Math.round(v); }
+      if(!Object.keys(p).length) continue;                    // sem nenhum preço válido → descarta
+      itens.push({ cat:String(ln[0]||"").trim(), nome, qtd:Math.round(numBR(ln[2])), p, g: fem.has(nome)?"F":"A" });
+    }
+    saida[chave] = { lojas, itens };
+  }
+  return saida;
+}
+
+async function carregar(){
+  const url = `https://docs.google.com/spreadsheets/d/${CFG.planilhaId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CFG.aba)}`;
+  try{
+    const r = await fetch(url, {cache:"no-store"});
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    const blocos = moldar(csv(await r.text()));
+    const n = Object.values(blocos).reduce((a,b)=>a+b.itens.length,0);
+    if(n < 20) throw new Error("poucos itens lidos ("+n+")");
+    DADOS = { ...SNAPSHOT, blocos };
+    AO_VIVO = true;
+  }catch(e){
+    DADOS = SNAPSHOT;
+    AO_VIVO = false;
+    console.warn("Leitura ao vivo falhou — usando cópia local:", e.message);
+  }
+  desenhar();
+}
+
+/* =========================================================================
+   Cálculo
+   ========================================================================= */
+const $ = s => document.querySelector(s);
+const rs = v => "R$ " + Math.round(v).toLocaleString("pt-BR");
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const idDe = (b,i) => b + "::" + i.nome;
+
+function todos(){                                             // todos os itens, com id e bloco
+  const out=[];
+  for(const [chave,b] of Object.entries(DADOS.blocos))
+    for(const it of b.itens) out.push({ ...it, bloco:chave, id:idDe(chave,it) });
+  return out;
+}
+function visiveis(){ return todos().filter(it => E.genero==="A" || it.g==="A" || it.g===E.genero); }
+
+function melhor(it){
+  let ln=null, pn=Infinity;
+  for(const [l,p] of Object.entries(it.p)) if(p<pn){ pn=p; ln=l; }
+  return { loja:ln, preco:pn };
+}
+const lojaDe = it => (E.loja[it.id] && it.p[E.loja[it.id]]) ? E.loja[it.id] : melhor(it).loja;
+const qtdDe  = it => E.qtd[it.id] !== undefined ? E.qtd[it.id] : it.qtd;
+const unDe   = it => it.p[lojaDe(it)] || 0;
+
+function resumo(lista){
+  let total=0, falta=0, feitos=0, itens=0;
+  for(const it of lista){
+    const q=qtdDe(it); if(q<=0) continue;
+    itens++;
+    const v=unDe(it)*q; total+=v;
+    if(E.ok[it.id]) feitos++; else falta+=v;
+  }
+  return { total, falta, feitos, itens };
+}
+
+/* =========================================================================
+   Render — topo
+   ========================================================================= */
+const NOME_TELA = { calc:"Calculadora", lojas:"Lojas & pagamento", online:"Compras online", bizus:"Bizus do CFP" };
+
+function topo(){
+  const r = resumo(visiveis());
+  const pct = r.itens ? Math.round(r.feitos/r.itens*100) : 0;
+  const fim = r.itens && r.feitos===r.itens;
+  $("#tTela").textContent = NOME_TELA[E.aba] || "";
+  $("#tFalta").textContent = fim ? "Tudo comprado" : rs(r.falta);
+  $("#tLabel").textContent = fim ? "🎖" : "ainda a comprar";
+  $("#tSub").innerHTML = `Orçamento <b>${rs(r.total)}</b> · ${r.feitos} de ${r.itens} itens marcados`;
+  const b=$("#tBarra"); b.style.width=pct+"%"; b.classList.toggle("full",fim);
+  $("#fPonto").className = "pt" + (AO_VIVO ? " viva" : "");
+  $("#fTexto").textContent = AO_VIVO ? "Preços lidos da planilha agora" : "Cópia local — planilha não respondeu";
+}
+
+/* =========================================================================
+   Tela 1 — Calculadora
+   ========================================================================= */
+function chevron(){ return `<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>`; }
+
+function itemHTML(it){
+  const q=qtdDe(it), lj=lojaDe(it), un=it.p[lj]||0, ok=!!E.ok[it.id], zer=q<=0;
+  const ord=Object.entries(it.p).sort((a,b)=>a[1]-b[1]), min=ord[0][1];
+  const comp=ord.map(([l,p])=>`
+    <button class="lj ${p===min?"menor":""}" data-loja="${esc(l)}" role="radio" aria-checked="${l===lj}">
+      <span class="r0"></span>
+      <span class="n">${esc(l)}</span><span class="p num">${rs(p)}</span>
+      <span class="dif num">${p===min?"—":"+"+(p-min).toLocaleString("pt-BR")}</span>
+    </button>`).join("");
+  return `<article class="item ${ok?"ok":""} ${zer?"zerado":""}" data-id="${esc(it.id)}">
+    <div class="linha">
+      <button class="tick" role="checkbox" aria-checked="${ok}" aria-label="Marcar ${esc(it.nome)} como comprado">
+        <svg viewBox="0 0 24 24"><path d="M4 12l6 6L20 6"/></svg></button>
+      <div class="meio">
+        <div class="nome">${esc(it.nome)}</div>
+        <div class="controls">
+          <span class="step" role="group" aria-label="Quantidade de ${esc(it.nome)}">
+            <button data-d="-1" aria-label="Menos um" ${q<=0?"disabled":""}>−</button>
+            <b class="num">${q}</b>
+            <button data-d="1" aria-label="Mais um">+</button>
+          </span>
+          <button class="lojaBtn" aria-label="Escolher loja para ${esc(it.nome)}">
+            <span class="lojaNome">${esc(lj)}</span>${chevron()}
+          </button>
+        </div>
+      </div>
+      <div class="dir"><div class="v num">${rs(un*q)}</div><div class="un num">${rs(un)} cada</div></div>
+    </div>
+    <div class="exp" role="radiogroup" aria-label="Lojas que vendem ${esc(it.nome)}">
+      <div class="lbl">${ord.length} loja${ord.length>1?"s":""} · da mais barata p/ mais cara</div>
+      ${comp}
+    </div>
+  </article>`;
+}
+
+function telaCalc(){
+  const its=visiveis(), por={};
+  for(const it of its) (por[it.bloco] ||= []).push(it);
+  let h=`<div class="filtros">
+    <button class="chip" data-g="A" aria-pressed="${E.genero==="A"}">Todos</button>
+    <button class="chip" data-g="M" aria-pressed="${E.genero==="M"}">Masculino</button>
+    <button class="chip" data-g="F" aria-pressed="${E.genero==="F"}">Feminino</button>
+  </div>
+  <p class="hint">Toque no <b>±</b> pra mudar a quantidade e na <b>loja</b> pra comparar preços. O total lá em cima acompanha.</p>`;
+  for(const [chave,cfg] of Object.entries(CFG.blocos)){
+    const lista=por[chave]; if(!lista?.length) continue;
+    const r=resumo(lista);
+    h+=`<h2 class="grupo">${esc(cfg.titulo)} <span class="sm">${lista.length}</span>
+        <span class="rt">subtotal <b>${rs(r.total)}</b></span></h2>
+      <div class="lista">${lista.map(itemHTML).join("")}</div>`;
+  }
+  return h;
+}
+
+/* =========================================================================
+   Tela 2 — Lojas (contatos + pagamento + cupom)
+   ========================================================================= */
+function telaLojas(){
+  let h=`<h2 class="grupo">Contatos das lojas <span class="rt">Brasília e online</span></h2><div class="painel">`;
+  for(const [nome,tel,insta,igurl] of DADOS.contatos){
+    const zap=tel.replace(/\D/g,"");
+    h+=`<div class="ct"><div class="info">
+        <div class="n">${esc(nome)}</div>
+        <div class="i">${esc(tel)}${insta?" · "+esc(insta):""}</div>
+      </div><div class="acts">
+        <a class="ico zap" href="https://wa.me/55${zap}" target="_blank" rel="noopener" aria-label="WhatsApp de ${esc(nome)}">${svgZap()}</a>
+        ${igurl?`<a class="ico ig" href="${esc(igurl)}" target="_blank" rel="noopener" aria-label="Instagram de ${esc(nome)}">${svgIg()}</a>`:""}
+      </div></div>`;
+  }
+  h+=`</div><p class="aviso">Chama no WhatsApp pra confirmar preço, tamanho e prazo antes de ir. Alguns números são fixos — se o WhatsApp não abrir, ligue.</p>`;
+
+  h+=`<h2 class="grupo">Pagamento e desconto à vista</h2><div class="painel"><table class="pag">`;
+  for(const [loja,parc,desc] of DADOS.pagamento)
+    h+=`<tr><td>${esc(loja)}</td><td>${esc(parc)} · ${esc(desc)}</td></tr>`;
+  h+=`</table><div class="cupom"><span class="cd">${esc(DADOS.cupom.codigo)}</span>
+      <span>${DADOS.cupom.pct} de desconto na <b>${esc(DADOS.cupom.loja)}</b></span></div></div>`;
+  return h;
+}
+
+/* =========================================================================
+   Tela 3 — Online
+   ========================================================================= */
+function telaOnline(){
+  const lista=DADOS.links.filter(l=>E.genero==="A"||l.g==="A"||l.g===E.genero);
+  let h=`<h2 class="grupo">Itens que valem comprar online</h2>`;
+  for(const l of lista){
+    const [p,...o]=l.op; if(!p) continue;
+    h+=`<div class="card"><div class="tl">${esc(l.nome)}</div>
+      <div class="st">${esc(p.t)}</div>
+      <a class="abrir" href="${esc(p.u)}" target="_blank" rel="noopener nofollow">Abrir a oferta
+        <svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></a>`;
+    if(o.length) h+=`<details class="outras"><summary>Outras ${o.length} opç${o.length>1?"ões":"ão"}</summary>${
+      o.map(x=>`<a href="${esc(x.u)}" target="_blank" rel="noopener nofollow">${esc(x.t)}</a>`).join("")}</details>`;
+    h+=`</div>`;
+  }
+  return h+`<p class="aviso">Uniforme, coturno e insígnia se compram nas lojas físicas — tem prova de tamanho e bordado. Aqui ficam só os itens de fora do enxoval oficial. Links de Mercado Livre/Shopee são de afiliado da autora da planilha.</p>`;
+}
+
+/* SVGs de contato (usados na Tela 2 — Lojas) */
+function svgZap(){ return `<svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 00-8.6 15L2 22l5.1-1.3A10 10 0 1012 2zm5.5 14c-.2.6-1.2 1.2-1.7 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.4-1.1-2.7 0-1.3.7-1.9 1-2.2.2-.2.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.5c-.2.2-.3.4-.1.7.2.3.9 1.4 1.9 2 .8.5 1.1.5 1.4.4.2-.1.5-.5.7-.8.2-.2.4-.2.6-.1l1.9.9c.2.1.4.2.5.3.1.3.1.9-.1 1.5z"/></svg>`; }
+function svgIg(){ return `<svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="17" cy="7" r="1.1" fill="currentColor" stroke="none"/></svg>`; }
+
+/* =========================================================================
+   Tela 4 — Bizus
+   ========================================================================= */
+const ICONE_GRUPO = {"Arquivos base":"📁","Ordem unida":"🥾","Hinos e canções":"🎵","Nós e amarrações":"🪢","Cuidado com os pés":"🦶","Manutenção do coturno":"🥾","Kit costura":"🧵","Outros":"⭐"};
+function telaBizus(){
+  let h=`<p class="hint" style="margin-top:12px">Materiais que os aprovados juntaram pra chegar preparado no Curso de Formação.</p>`;
+  for(const [grupo,itens] of DADOS.bizus){
+    h+=`<h2 class="grupo">${esc(grupo)}</h2><div class="painel biz">`;
+    for(const [t,u] of itens){
+      h+=`<a href="${esc(u)}" target="_blank" rel="noopener nofollow">
+        <span class="tag">${ICONE_GRUPO[grupo]||"🔗"}</span><span>${esc(t)}</span>
+        <span class="ar"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></span></a>`;
+    }
+    h+=`</div>`;
+  }
+  return h;
+}
+
+/* =========================================================================
+   Desenhar + navegação
+   ========================================================================= */
+function desenhar(){
+  if(!DADOS) return;
+  const t=E.aba;
+  $("#tela").innerHTML =
+    t==="lojas" ? telaLojas() :
+    t==="online" ? telaOnline() :
+    t==="bizus" ? telaBizus() : telaCalc();
+  document.querySelectorAll(".abas button").forEach(b=>b.setAttribute("aria-selected", b.dataset.t===t));
+  topo();
+}
+
+/* =========================================================================
+   Interação
+   ========================================================================= */
+document.addEventListener("click", ev => {
+  const aba = ev.target.closest(".abas button");
+  if(aba){ E.aba=aba.dataset.t; salvar(); desenhar(); window.scrollTo(0,0); return; }
+
+  const chip = ev.target.closest(".chip");
+  if(chip){ E.genero=chip.dataset.g; salvar(); desenhar(); return; }
+
+  const art = ev.target.closest(".item");
+  if(!art) return;
+  const id = art.dataset.id;
+  const it = visiveis().find(x=>x.id===id); if(!it) return;
+
+  if(ev.target.closest(".tick")){ E.ok[id]=!E.ok[id]; salvar(); desenhar(); return; }
+
+  const passo = ev.target.closest(".step button");
+  if(passo){ E.qtd[id]=Math.max(0, qtdDe(it) + (+passo.dataset.d)); salvar(); desenhar(); return; }
+
+  const lj = ev.target.closest(".lj");
+  if(lj){ E.loja[id]=lj.dataset.loja; salvar(); desenhar(); return; }
+
+  if(ev.target.closest(".lojaBtn") || ev.target.closest(".nome")){ art.classList.toggle("aberto"); return; }
+});
+
+$("#btZerar").addEventListener("click", () => {
+  if(!confirm("Isso apaga suas quantidades, escolhas de loja e o que você já marcou como comprado. Continuar?")) return;
+  E = { qtd:{}, loja:{}, ok:{}, genero:"A", aba:E.aba };
+  salvar(); desenhar(); window.scrollTo(0,0);
+});
+
+// Recarrega os preços quando você volta pro app
+document.addEventListener("visibilitychange", () => { if(!document.hidden) carregar(); });
+
+carregar();
+</script>
+</body>
+</html>
