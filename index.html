@@ -271,13 +271,16 @@ const SNAPSHOT = {"blocos":{"enxoval":{"lojas":["Demir","Cezar","Brito","Forte",
 const CFG = {
   planilhaId: "1QI-vGc--zXDDX3Tvq_F1i3bZGOFiY5o0C88MHbNrDGc",
   aba: "Enxoval Unificado",
-  // Cada bloco: linhas de itens (1-indexadas, como no CSV do gviz) e colunas de loja (0-indexadas: A=0,B=1,...).
-  // Os NOMES das lojas vêm de SNAPSHOT.lojasPorBloco (na planilha só o bloco Enxoval tem cabeçalho nomeando as lojas).
-  // Confira abrindo …/gviz/tq?tqx=out:csv&sheet=Enxoval%20Unificado — a 1ª linha do CSV é o cabeçalho.
+  // A leitura detecta os blocos pelos DIVISORES na coluna A ("COTURNOS", "EQUIPAMENTOS…"),
+  // então adicionar/remover/esvaziar linhas na planilha não quebra nada.
+  // Coluna A = categoria, B = item, C = qtd sugerida; as lojas começam na coluna D.
+  colInicial: 3,                 // 0-indexado: A=0, B=1, C=2, D=3 (primeira loja)
+  // Os NOMES das lojas de cada bloco (por ordem de coluna) vêm de SNAPSHOT.lojasPorBloco.
+  // Para ADICIONAR UMA LOJA nova (coluna), acrescente o nome dela lá.
   blocos: {
-    enxoval: { ini: 2,  fim: 28, c0: 3, c1: 10, titulo: "Enxoval" },
-    coturno: { ini: 32, fim: 38, c0: 3, c1: 9,  titulo: "Coturno" },
-    equip:   { ini: 41, fim: 50, c0: 3, c1: 5,  titulo: "Equipamentos / Acessórios" }
+    enxoval: { titulo: "Enxoval" },
+    coturno: { titulo: "Coturno" },
+    equip:   { titulo: "Equipamentos / Acessórios" }
   },
   // Itens femininos (mostrados só no filtro Feminino / Todos).
   femininos: ["Saia Passeio", "Saia Túnica"]
@@ -322,18 +325,22 @@ const numBR = s => { const n = parseFloat(String(s).replace(/[^\d,.-]/g,"").repl
 function moldar(linhas){
   const fem = new Set(CFG.femininos);
   const saida = {};
-  for(const [chave,b] of Object.entries(CFG.blocos)){
-    const lojas = SNAPSHOT.lojasPorBloco[chave];              // nomes fixos por posição de coluna
-    const itens=[];
-    for(let r=b.ini-1;r<=b.fim-1;r++){
-      const ln = linhas[r]; if(!ln) continue;
-      const nome = String(ln[1]||"").trim(); if(!nome) continue;
-      const p={};
-      for(let c=b.c0;c<=b.c1;c++){ const v=numBR(ln[c]); if(v>0) p[lojas[c-b.c0]] = Math.round(v); }
-      if(!Object.keys(p).length) continue;                    // sem nenhum preço válido → descarta
-      itens.push({ cat:String(ln[0]||"").trim(), nome, qtd:Math.round(numBR(ln[2])), p, g: fem.has(nome)?"F":"A" });
+  for(const chave of Object.keys(CFG.blocos))                 // mantém a ordem enxoval → coturno → equip
+    saida[chave] = { lojas: SNAPSHOT.lojasPorBloco[chave], itens: [] };
+  let bloco = "enxoval";                                       // o CSV começa no bloco de cima
+  for(const ln of linhas){
+    const a = String(ln[0]||"").trim().toUpperCase();
+    const nome = String(ln[1]||"").trim();
+    if(!nome){                                                 // linha sem item = divisor de seção ou linha em branco
+      if(a === "COTURNOS" || a === "COTURNO") bloco = "coturno";
+      else if(a.startsWith("EQUIPAMENTO")) bloco = "equip";
+      continue;
     }
-    saida[chave] = { lojas, itens };
+    const lojas = saida[bloco].lojas;                          // nomes das lojas por posição de coluna
+    const p = {};
+    for(let c=0;c<lojas.length;c++){ const v=numBR(ln[CFG.colInicial + c]); if(v>0) p[lojas[c]] = Math.round(v); }
+    if(!Object.keys(p).length) continue;                       // sem nenhum preço válido → descarta (0 = não vende)
+    saida[bloco].itens.push({ cat:String(ln[0]||"").trim(), nome, qtd:Math.round(numBR(ln[2])), p, g: fem.has(nome)?"F":"A" });
   }
   return saida;
 }
