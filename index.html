@@ -114,7 +114,7 @@ h2.grupo .rt b{color:var(--ink);font-weight:700}
 .item.aberto .lojaBtn svg{transform:rotate(180deg)}
 .lojaBtn.vazia{border-style:dashed;color:var(--ink3)}
 .lojaBtn.vazia .lojaNome{color:var(--ink3)}
-.sug{font-size:11.5px;color:var(--ink3);white-space:nowrap;align-self:center}
+.sug{font-size:11.5px;color:var(--ink3);margin-top:7px}
 .lojaBtn:focus-visible,.tick:focus-visible,.step button:focus-visible{outline:2px solid var(--fogo);outline-offset:2px}
 .dir{text-align:right;flex:none;padding-left:2px;min-width:74px}
 .dir .v{font-family:"Barlow Semi Condensed";font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.05}
@@ -480,11 +480,11 @@ function itemHTML(it){
             <b class="num">${q}</b>
             <button data-d="1" aria-label="Mais um">+</button>
           </span>
-          <span class="sug num" title="Quantidade sugerida na planilha">sugerido: ${it.qtd}</span>
           <button class="lojaBtn ${semLoja?"vazia":""}" aria-label="Escolher loja para ${esc(it.nome)}">
             <span class="lojaNome">${semLoja?"Escolher loja":esc(lj)}</span>${chevron()}
           </button>
         </div>
+        <div class="sug num" title="Quantidade sugerida na planilha">sugerido: ${it.qtd}</div>
       </div>
       <div class="dir"><div class="v num">${rs(un*q)}</div><div class="un num">${semLoja?"sem loja":rs(un)+" cada"}</div></div>
     </div>
