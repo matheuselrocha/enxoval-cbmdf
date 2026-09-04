@@ -112,6 +112,9 @@ h2.grupo .rt b{color:var(--ink);font-weight:700}
 .lojaBtn .lojaNome{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px;font-weight:600}
 .lojaBtn svg{width:13px;height:13px;stroke:var(--ink3);stroke-width:2;fill:none;flex:none;transition:transform .2s}
 .item.aberto .lojaBtn svg{transform:rotate(180deg)}
+.lojaBtn.vazia{border-style:dashed;color:var(--ink3)}
+.lojaBtn.vazia .lojaNome{color:var(--ink3)}
+.sug{font-size:11.5px;color:var(--ink3);white-space:nowrap;align-self:center}
 .lojaBtn:focus-visible,.tick:focus-visible,.step button:focus-visible{outline:2px solid var(--fogo);outline-offset:2px}
 .dir{text-align:right;flex:none;padding-left:2px;min-width:74px}
 .dir .v{font-family:"Barlow Semi Condensed";font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.05}
@@ -202,7 +205,8 @@ table.pag td:last-child{text-align:right;color:var(--ink2);padding-left:8px}
 /* ---------- rodapé ---------- */
 .rodape{padding:22px 16px 12px;font-size:12px;color:var(--ink3);line-height:1.55}
 .rodape a{color:var(--ink2)}
-.zerar{margin-top:12px;background:none;border:1px solid var(--rule);border-radius:8px;padding:9px 14px;font-size:12.5px;color:var(--ink2);cursor:pointer;min-height:40px}
+.zerar-linha{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.zerar{background:none;border:1px solid var(--rule);border-radius:8px;padding:9px 14px;font-size:12.5px;color:var(--ink2);cursor:pointer;min-height:40px}
 .zerar:active{background:var(--card)}
 
 /* ---------- abas ---------- */
@@ -243,7 +247,10 @@ table.pag td:last-child{text-align:right;color:var(--ink2);padding-left:8px}
 
   <div class="rodape">
     <p>Pesquisa feita por aprovados do CFP CBMDF 2026. Preço muda sem aviso — confirme na loja antes de comprar. Célula com preço zero na planilha = a loja não vende aquele item.</p>
-    <button class="zerar" id="btZerar">Zerar minhas escolhas</button>
+    <div class="zerar-linha">
+      <button class="zerar" id="btZerarLojas">Zerar lojas</button>
+      <button class="zerar" id="btZerar">Zerar minhas escolhas</button>
+    </div>
   </div>
 </div>
 
@@ -409,7 +416,12 @@ function melhor(it){
   for(const [l,p] of Object.entries(it.p)) if(p<pn){ pn=p; ln=l; }
   return { loja:ln, preco:pn };
 }
-const lojaDe = it => (E.loja[it.id] && it.p[E.loja[it.id]]) ? E.loja[it.id] : melhor(it).loja;
+const lojaDe = it => {
+  const v = E.loja[it.id];
+  if(v === "") return "";                    // loja zerada de propósito (botão "Zerar lojas")
+  if(v && it.p[v]) return v;                 // loja escolhida pelo usuário
+  return melhor(it).loja;                    // padrão: a mais barata
+};
 const qtdDe  = it => E.qtd[it.id] !== undefined ? E.qtd[it.id] : it.qtd;
 const unDe   = it => it.p[lojaDe(it)] || 0;
 
@@ -448,7 +460,7 @@ function topo(){
 function chevron(){ return `<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>`; }
 
 function itemHTML(it){
-  const q=qtdDe(it), lj=lojaDe(it), un=it.p[lj]||0, ok=!!E.ok[it.id], zer=q<=0;
+  const q=qtdDe(it), lj=lojaDe(it), un=it.p[lj]||0, ok=!!E.ok[it.id], zer=q<=0, semLoja=lj==="";
   const ord=Object.entries(it.p).sort((a,b)=>a[1]-b[1]), min=ord[0][1];
   const comp=ord.map(([l,p])=>`
     <button class="lj ${p===min?"menor":""}" data-loja="${esc(l)}" role="radio" aria-checked="${l===lj}">
@@ -468,12 +480,13 @@ function itemHTML(it){
             <b class="num">${q}</b>
             <button data-d="1" aria-label="Mais um">+</button>
           </span>
-          <button class="lojaBtn" aria-label="Escolher loja para ${esc(it.nome)}">
-            <span class="lojaNome">${esc(lj)}</span>${chevron()}
+          <span class="sug num" title="Quantidade sugerida na planilha">sugerido: ${it.qtd}</span>
+          <button class="lojaBtn ${semLoja?"vazia":""}" aria-label="Escolher loja para ${esc(it.nome)}">
+            <span class="lojaNome">${semLoja?"Escolher loja":esc(lj)}</span>${chevron()}
           </button>
         </div>
       </div>
-      <div class="dir"><div class="v num">${rs(un*q)}</div><div class="un num">${rs(un)} cada</div></div>
+      <div class="dir"><div class="v num">${rs(un*q)}</div><div class="un num">${semLoja?"sem loja":rs(un)+" cada"}</div></div>
     </div>
     <div class="exp" role="radiogroup" aria-label="Lojas que vendem ${esc(it.nome)}">
       <div class="lbl">${ord.length} loja${ord.length>1?"s":""} · da mais barata p/ mais cara</div>
@@ -602,6 +615,12 @@ document.addEventListener("click", ev => {
 $("#btZerar").addEventListener("click", () => {
   if(!confirm("Isso apaga suas quantidades, escolhas de loja e o que você já marcou como comprado. Continuar?")) return;
   E = { qtd:{}, loja:{}, ok:{}, aba:E.aba };
+  salvar(); desenhar(); window.scrollTo(0,0);
+});
+
+$("#btZerarLojas").addEventListener("click", () => {
+  if(!confirm("Isso deixa a loja de todos os itens em branco e o valor zerado, pra você escolher loja por loja. Suas quantidades e marcações continuam. Continuar?")) return;
+  for(const it of todos()) E.loja[it.id] = "";   // "" = loja em branco (valor 0)
   salvar(); desenhar(); window.scrollTo(0,0);
 });
 
