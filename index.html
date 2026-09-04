@@ -402,7 +402,7 @@ function todos(){                                             // todos os itens,
     for(const it of b.itens) out.push({ ...it, bloco:chave, id:idDe(chave,it) });
   return out;
 }
-function visiveis(){ return todos().filter(it => E.genero==="A" || it.g==="A" || it.g===E.genero); }
+function visiveis(){ return todos(); }   // enxoval unificado — sem distinção de sexo
 
 function melhor(it){
   let ln=null, pn=Infinity;
@@ -485,12 +485,7 @@ function itemHTML(it){
 function telaCalc(){
   const its=visiveis(), por={};
   for(const it of its) (por[it.bloco] ||= []).push(it);
-  let h=`<div class="filtros">
-    <button class="chip" data-g="A" aria-pressed="${E.genero==="A"}">Todos</button>
-    <button class="chip" data-g="M" aria-pressed="${E.genero==="M"}">Masculino</button>
-    <button class="chip" data-g="F" aria-pressed="${E.genero==="F"}">Feminino</button>
-  </div>
-  <p class="hint">Toque no <b>±</b> pra mudar a quantidade e na <b>loja</b> pra comparar preços. O total lá em cima acompanha.</p>`;
+  let h=`<p class="hint" style="margin-top:14px">Toque no <b>±</b> pra mudar a quantidade e na <b>loja</b> pra comparar preços. O total lá em cima acompanha.</p>`;
   for(const [chave,cfg] of Object.entries(CFG.blocos)){
     const lista=por[chave]; if(!lista?.length) continue;
     const r=resumo(lista);
@@ -530,7 +525,7 @@ function telaLojas(){
    Tela 3 — Online
    ========================================================================= */
 function telaOnline(){
-  const lista=DADOS.links.filter(l=>E.genero==="A"||l.g==="A"||l.g===E.genero);
+  const lista=DADOS.links;
   let h=`<h2 class="grupo">Itens que valem comprar online</h2>`;
   for(const l of lista){
     const [p,...o]=l.op; if(!p) continue;
@@ -588,9 +583,6 @@ document.addEventListener("click", ev => {
   const aba = ev.target.closest(".abas button");
   if(aba){ E.aba=aba.dataset.t; salvar(); desenhar(); window.scrollTo(0,0); return; }
 
-  const chip = ev.target.closest(".chip");
-  if(chip){ E.genero=chip.dataset.g; salvar(); desenhar(); return; }
-
   const art = ev.target.closest(".item");
   if(!art) return;
   const id = art.dataset.id;
@@ -609,7 +601,7 @@ document.addEventListener("click", ev => {
 
 $("#btZerar").addEventListener("click", () => {
   if(!confirm("Isso apaga suas quantidades, escolhas de loja e o que você já marcou como comprado. Continuar?")) return;
-  E = { qtd:{}, loja:{}, ok:{}, genero:"A", aba:E.aba };
+  E = { qtd:{}, loja:{}, ok:{}, aba:E.aba };
   salvar(); desenhar(); window.scrollTo(0,0);
 });
 
