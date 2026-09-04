@@ -37,24 +37,29 @@ const CFG = {
 };
 ```
 
-## Ajustar os limites de bloco (se mexer no layout da planilha)
+## Editar direto na planilha (sem mexer no código)
 
-Ainda no `CFG`, cada bloco aponta as **linhas de itens** (1-indexadas, como no CSV do gviz —
-a 1ª linha do CSV é o cabeçalho) e as **colunas de loja** (0-indexadas: A=0, B=1, C=2, D=3…):
+A leitura é dinâmica: os blocos são detectados pelos divisores da **coluna A** (`COTURNOS`,
+`EQUIPAMENTOS…`) e os nomes das lojas vêm da aba **Validação de dados**. Então dá pra fazer
+quase tudo só na planilha, sem tocar no HTML:
 
-```js
-blocos: {
-  enxoval: { ini: 2,  fim: 28, c0: 3, c1: 10, titulo: "Enxoval" },
-  coturno: { ini: 32, fim: 38, c0: 3, c1: 9,  titulo: "Coturno" },
-  equip:   { ini: 41, fim: 50, c0: 3, c1: 5,  titulo: "Equipamentos / Acessórios" }
-}
-```
+- **Mudar preço / Qtd Sugerida** de um item existente → edite a célula. (0 = a loja não vende.)
+- **Adicionar / remover um produto** → adicione ou apague/esvazie a linha dentro do bloco certo.
+  Pode inserir ou deletar linhas à vontade; o parser se realinha sozinho.
+- **Adicionar / remover uma loja** → faça as DUAS coisas, na mesma ordem:
+  1. Aba **Validação de dados**: acrescente/remova o nome da loja na coluna do bloco
+     (coluna 1 = Enxoval, 2 = Coturno, 3 = Equipamentos).
+  2. Aba **Enxoval Unificado**: acrescente/remova a coluna de preços correspondente, na
+     **mesma posição/ordem** da lista de Validação (a 1ª loja da lista = 1ª coluna de preço, coluna D).
 
-Os **nomes das lojas** de cada bloco ficam em `SNAPSHOT.lojasPorBloco` (na planilha só o bloco
-Enxoval tem cabeçalho nomeando as lojas; nos outros os nomes são posicionais por coluna).
-Para conferir os limites, abra a URL do gviz acima no navegador e conte as linhas.
+> A ordem das lojas na aba Validação precisa bater com a ordem das colunas de preço na aba
+> Enxoval Unificado — é assim que o app liga preço → loja.
 
-Itens femininos: lista `CFG.femininos` (`Saia Passeio`, `Saia Túnica`).
+O que **não** é lido ao vivo (só sai no código/snapshot): Contatos, Pagamento, Cupom, Compras
+Online e Bizus. Para mudar esses, me avise (ou edite o `SNAPSHOT` no `index.html`).
+
+Itens femininos (aparecem só no filtro Feminino/Todos): lista `CFG.femininos`
+(`Saia Passeio`, `Saia Túnica`).
 
 ## Regerar o snapshot embutido (quando os preços mudarem muito)
 
@@ -67,6 +72,6 @@ links online, contatos, pagamento, cupom e bizus. Para atualizar:
    mesmo formato do objeto `SNAPSHOT` atual.
 3. Cole por cima do `SNAPSHOT` no arquivo.
 
-Teste de sanidade: o "melhor preço item a item" somando os três blocos com as quantidades
-sugeridas tem que dar **R$ 6.806**. Se der outro número, o parser está pegando 0 como preço
-válido ou lendo linha fora do bloco.
+Regra de sanidade: nenhum preço 0 deve entrar em comparação ou soma (0 = a loja não vende).
+Na primeira versão da planilha, o "melhor preço item a item" dos três blocos com as quantidades
+sugeridas dava **R$ 6.806** — se você mudou preços/lojas depois, esse número naturalmente muda.
