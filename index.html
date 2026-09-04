@@ -271,6 +271,10 @@ const SNAPSHOT = {"blocos":{"enxoval":{"lojas":["Demir","Cezar","Brito","Forte",
 const CFG = {
   planilhaId: "1QI-vGc--zXDDX3Tvq_F1i3bZGOFiY5o0C88MHbNrDGc",
   aba: "Enxoval Unificado",
+  // Aba que lista as lojas de cada bloco (1 coluna por bloco, na mesma ordem de CFG.blocos):
+  // col 1 = Enxoval, col 2 = Coturno, col 3 = Equipamentos. É daqui que saem os nomes das
+  // colunas de loja — para ADICIONAR/REMOVER loja, basta editar essa aba e a coluna de preços.
+  abaLojas: "Validação de dados",
   // A leitura detecta os blocos pelos DIVISORES na coluna A ("COTURNOS", "EQUIPAMENTOS…"),
   // então adicionar/remover/esvaziar linhas na planilha não quebra nada.
   // Coluna A = categoria, B = item, C = qtd sugerida; as lojas começam na coluna D.
@@ -322,11 +326,11 @@ function csv(txt){
 }
 const numBR = s => { const n = parseFloat(String(s).replace(/[^\d,.-]/g,"").replace(/\.(?=\d{3}(\D|$))/g,"").replace(",",".")); return isNaN(n)?0:n; };
 
-function moldar(linhas){
+function moldar(linhas, lojasPorBloco){
   const fem = new Set(CFG.femininos);
   const saida = {};
   for(const chave of Object.keys(CFG.blocos))                 // mantém a ordem enxoval → coturno → equip
-    saida[chave] = { lojas: SNAPSHOT.lojasPorBloco[chave], itens: [] };
+    saida[chave] = { lojas: lojasPorBloco[chave] || [], itens: [] };
   let bloco = "enxoval";                                       // o CSV começa no bloco de cima
   for(const ln of linhas){
     const a = String(ln[0]||"").trim().toUpperCase();
@@ -345,12 +349,33 @@ function moldar(linhas){
   return saida;
 }
 
+const gviz = aba => `https://docs.google.com/spreadsheets/d/${CFG.planilhaId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(aba)}`;
+async function lerCSV(aba){
+  const r = await fetch(gviz(aba), {cache:"no-store"});
+  if(!r.ok) throw new Error("HTTP "+r.status+" ("+aba+")");
+  return csv(await r.text());
+}
+
+// Nomes das lojas por bloco, lidos ao vivo da aba de Validação (1 coluna por bloco).
+async function carregarLojas(){
+  const linhas = await lerCSV(CFG.abaLojas);
+  const out = {};
+  Object.keys(CFG.blocos).forEach((chave,col)=>{
+    const nomes=[];
+    for(let r=1;r<linhas.length;r++){ const v=String((linhas[r]||[])[col]||"").trim(); if(v) nomes.push(v); }
+    out[chave]=nomes;
+  });
+  return out;
+}
+
 async function carregar(){
-  const url = `https://docs.google.com/spreadsheets/d/${CFG.planilhaId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CFG.aba)}`;
+  let lojasBloco = SNAPSHOT.lojasPorBloco;
   try{
-    const r = await fetch(url, {cache:"no-store"});
-    if(!r.ok) throw new Error("HTTP "+r.status);
-    const blocos = moldar(csv(await r.text()));
+    const lb = await carregarLojas();
+    if(Object.keys(CFG.blocos).every(k => (lb[k]||[]).length)) lojasBloco = lb;   // só confia se todos os blocos vieram
+  }catch(e){ console.warn("Lista de lojas ao vivo falhou — usando cópia local:", e.message); }
+  try{
+    const blocos = moldar(await lerCSV(CFG.aba), lojasBloco);
     const n = Object.values(blocos).reduce((a,b)=>a+b.itens.length,0);
     if(n < 20) throw new Error("poucos itens lidos ("+n+")");
     DADOS = { ...SNAPSHOT, blocos };
